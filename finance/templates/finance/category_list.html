@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load finance_extras %}
+
+{% block title %}Kategóriák{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-semibold mb-1">Kategóriák</h1>
+        <p class="text-muted mb-0">Bevételi és kiadási kategóriák kezelése.</p>
+    </div>
+    <a href="{% url 'finance:category_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Új kategória
+    </a>
+</div>
+
+{% if categories %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Név</th>
+                            <th scope="col">Típus</th>
+                            <th scope="col" class="text-end">Tranzakciók</th>
+                            <th scope="col" class="text-end">Összesített összeg</th>
+                            <th scope="col" class="text-end">Műveletek</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                            <tr>
+                                <td class="fw-medium">{{ category.name }}</td>
+                                <td>
+                                    <span class="badge {% if category.type == 'income' %}text-bg-success{% else %}text-bg-danger{% endif %}">
+                                        {{ category.get_type_display }}
+                                    </span>
+                                </td>
+                                <td class="text-end">{{ category.transaction_count }} db</td>
+                                <td class="text-end text-nowrap">{{ category.total_amount|huf }}</td>
+                                <td class="text-end text-nowrap">
+                                    <a href="{% url 'finance:category_update' category.pk %}"
+                                       class="btn btn-sm btn-outline-secondary" title="Szerkesztés"
+                                       aria-label="Kategória szerkesztése">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    {% if category.transaction_count %}
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled
+                                                title="Használatban lévő kategória nem törölhető"
+                                                aria-label="A kategória használatban van, nem törölhető">
+                                            <i class="bi bi-lock"></i>
+                                        </button>
+                                    {% else %}
+                                        <form method="post" action="{% url 'finance:category_delete' category.pk %}"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Biztosan törlöd ezt a kategóriát?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Törlés"
+                                                    aria-label="Kategória törlése">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <p class="small text-muted mt-3 mb-0">
+        <i class="bi bi-info-circle me-1"></i>
+        A használatban lévő kategóriák nem törölhetők, hogy a tranzakciók ne veszítsék el a besorolásukat.
+    </p>
+{% else %}
+    <div class="card border-0 shadow-sm">
+        <div class="empty-state text-center py-5">
+            <i class="bi bi-tags display-5 text-muted"></i>
+            <p class="mt-3 mb-1 fw-medium">Még nincs kategóriád.</p>
+            <p class="text-muted">Hozz létre bevételi és kiadási kategóriákat a tranzakciókhoz.</p>
+            <a href="{% url 'finance:category_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>Első kategória létrehozása
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,331 @@
+/* HomeFinance – egyedi megjelenés */
+:root {
+    --hf-primary: #166534;
+    --hf-primary-dark: #14532d;
+    --hf-primary-light: #dcfce7;
+    --hf-bg: #f4f6fa;
+    --hf-surface: #ffffff;
+    --hf-muted: #64748b;
+    --hf-border: #e2e8f0;
+    --hf-radius: 0.9rem;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: var(--hf-bg);
+    color: #1e293b;
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+.skip-link {
+    position: absolute;
+    top: -3rem;
+    left: 1rem;
+    z-index: 1100;
+    background: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: top 0.15s ease-in-out;
+}
+
+.skip-link:focus {
+    top: 0.75rem;
+}
+
+/* Navigáció */
+.app-navbar {
+    background: linear-gradient(120deg, var(--hf-primary-dark), var(--hf-primary));
+    box-shadow: 0 1px 12px rgba(15, 23, 42, 0.18);
+}
+
+.app-navbar .navbar-brand {
+    letter-spacing: 0.02em;
+}
+
+.brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.6rem;
+    background: rgba(255, 255, 255, 0.16);
+    font-size: 1.05rem;
+}
+
+.app-navbar .nav-link {
+    border-radius: 0.5rem;
+    padding-inline: 0.75rem;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.app-navbar .nav-link:hover,
+.app-navbar .nav-link.active {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.14);
+}
+
+/* Kártyák */
+.card {
+    border-radius: var(--hf-radius);
+}
+
+.card-header {
+    border-top-left-radius: var(--hf-radius) !important;
+    border-top-right-radius: var(--hf-radius) !important;
+    border-bottom: 1px solid var(--hf-border);
+}
+
+.stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    background: var(--hf-primary);
+}
+
+.stat-income::before {
+    background: #198754;
+}
+
+.stat-expense::before {
+    background: #dc3545;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--hf-muted);
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.stat-icon {
+    font-size: 1.9rem;
+    line-height: 1;
+    opacity: 0.75;
+}
+
+.summary-card .h4 {
+    font-weight: 700;
+}
+
+.summary-chip {
+    display: flex;
+    flex-direction: column;
+    background: var(--hf-surface);
+    border-radius: 0.75rem;
+    padding: 0.8rem 1rem;
+    box-shadow: 0 1px 6px rgba(15, 23, 42, 0.06);
+    height: 100%;
+}
+
+.summary-chip-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--hf-muted);
+    font-weight: 600;
+}
+
+.summary-chip-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 0.15rem;
+}
+
+/* Táblázatok */
+.table > :not(caption) > * > * {
+    padding: 0.75rem 1rem;
+}
+
+.table thead th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--hf-muted);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+/* Grafikonok */
+.chart-box {
+    position: relative;
+    height: 280px;
+}
+
+.chart-box-lg {
+    height: 340px;
+}
+
+.chart-box canvas {
+    max-width: 100%;
+}
+
+/* Kategória progressz sávok */
+.progress-thin {
+    height: 0.45rem;
+    border-radius: 999px;
+    background: #eef2f7;
+}
+
+.progress-thin .progress-bar {
+    border-radius: 999px;
+}
+
+/* Bejelentkezés / regisztráció */
+.auth-card {
+    border-top: 4px solid var(--hf-primary);
+}
+
+.auth-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 1rem;
+    background: var(--hf-primary-light);
+    color: var(--hf-primary);
+    font-size: 1.6rem;
+}
+
+/* Űrlapok */
+.form-label {
+    margin-bottom: 0.3rem;
+}
+
+.form-control,
+.form-select {
+    border-color: #cbd5e1;
+    border-radius: 0.55rem;
+    padding-block: 0.5rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--hf-primary);
+    box-shadow: 0 0 0 0.2rem rgba(22, 101, 52, 0.15);
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--hf-primary);
+    --bs-btn-border-color: var(--hf-primary);
+    --bs-btn-hover-bg: var(--hf-primary-dark);
+    --bs-btn-hover-border-color: var(--hf-primary-dark);
+    --bs-btn-active-bg: var(--hf-primary-dark);
+    --bs-btn-active-border-color: var(--hf-primary-dark);
+    --bs-btn-disabled-bg: var(--hf-primary);
+    --bs-btn-disabled-border-color: var(--hf-primary);
+    border-radius: 0.55rem;
+}
+
+.btn-outline-secondary,
+.btn-outline-danger {
+    border-radius: 0.55rem;
+}
+
+.btn {
+    transition: transform 0.08s ease-in-out;
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+/* Üzenetek, üres állapot */
+.messages-stack .alert {
+    border: 0;
+    border-radius: 0.7rem;
+}
+
+.empty-state i {
+    opacity: 0.55;
+}
+
+.breadcrumb {
+    margin-bottom: 0.75rem;
+}
+
+.breadcrumb a {
+    color: var(--hf-primary);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+/* Lábléc */
+.app-footer {
+    flex-shrink: 0;
+    background: var(--hf-surface);
+    border-top: 1px solid var(--hf-border);
+}
+
+/* Reszponzív finomítások */
+@media (max-width: 575.98px) {
+    .stat-value {
+        font-size: 1.2rem;
+    }
+
+    .table > :not(caption) > * > * {
+        padding: 0.65rem 0.7rem;
+    }
+
+    .chart-box {
+        height: 240px;
+    }
+}
+
+/* Nyomtatás */
+@media print {
+    .app-navbar,
+    .app-footer,
+    .btn,
+    .pagination,
+    .card-header a,
+    form[method="get"] {
+        display: none !important;
+    }
+
+    body {
+        background: #fff;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+
+    .chart-box {
+        display: none;
+    }
+}

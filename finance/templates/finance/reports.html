@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+{% load finance_extras %}
+
+{% block title %}Kimutatások{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-semibold mb-1">Kimutatások</h1>
+        <p class="text-muted mb-0">Havi összesítés, kategóriánkénti bontás és hosszabb távú trend.</p>
+    </div>
+    <a href="{% url 'finance:transaction_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Új tranzakció
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex flex-wrap align-items-end justify-content-between gap-3">
+            <form method="get" class="d-flex flex-wrap align-items-end gap-2" aria-label="Hónap kiválasztása">
+                <div>
+                    <label for="reportYear" class="form-label small mb-1">Év</label>
+                    <select id="reportYear" name="year" class="form-select form-select-sm">
+                        {% for value in years %}
+                            <option value="{{ value }}" {% if value == year %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="reportMonth" class="form-label small mb-1">Hónap</label>
+                    <select id="reportMonth" name="month" class="form-select form-select-sm">
+                        {% for value, label in months %}
+                            <option value="{{ value }}" {% if value == month %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-sm btn-primary">
+                    <i class="bi bi-calendar-check me-1"></i>Megjelenítés
+                </button>
+                <a href="{% url 'finance:reports' %}" class="btn btn-sm btn-outline-secondary">Aktuális hónap</a>
+            </form>
+
+            <div class="d-flex align-items-center gap-2">
+                <a href="?year={{ prev_year }}&month={{ prev_month }}" class="btn btn-sm btn-outline-secondary"
+                   aria-label="Előző hónap">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+                <span class="fw-semibold text-nowrap">{{ month_name }}</span>
+                <a href="?year={{ next_year }}&month={{ next_month }}" class="btn btn-sm btn-outline-secondary"
+                   aria-label="Következő hónap">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="card summary-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="stat-label mb-1"><i class="bi bi-arrow-down-left-circle text-success me-1"></i>Bevétel</p>
+                <p class="h4 mb-0 text-success">{{ totals.income|huf }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="card summary-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="stat-label mb-1"><i class="bi bi-arrow-up-right-circle text-danger me-1"></i>Kiadás</p>
+                <p class="h4 mb-0 text-danger">{{ totals.expense|huf }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="card summary-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="stat-label mb-1"><i class="bi bi-scale text-primary me-1"></i>Egyenleg</p>
+                <p class="h4 mb-0 {% if totals.balance < 0 %}text-danger{% else %}text-success{% endif %}">
+                    {{ totals.balance|huf }}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="card summary-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="stat-label mb-1"><i class="bi bi-list-check text-secondary me-1"></i>Tranzakciók</p>
+                <p class="h4 mb-0">{{ totals.count }} db</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h2 class="h6 mb-0 fw-semibold"><i class="bi bi-pie-chart me-1 text-success"></i>Bevételek megoszlása</h2>
+            </div>
+            <div class="card-body">
+                <div class="chart-box">
+                    <canvas id="incomeChart" data-chart-canvas aria-label="Bevételek kategóriánkénti megoszlása" role="img"></canvas>
+                    <p class="text-muted small mb-0 d-none" data-chart-fallback>
+                        Ebben a hónapban nincs megjeleníthető bevétel, vagy a grafikonhoz internetkapcsolat szükséges.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h2 class="h6 mb-0 fw-semibold"><i class="bi bi-pie-chart me-1 text-danger"></i>Kiadások megoszlása</h2>
+            </div>
+            <div class="card-body">
+                <div class="chart-box">
+                    <canvas id="expenseChart" data-chart-canvas aria-label="Kiadások kategóriánkénti megoszlása" role="img"></canvas>
+                    <p class="text-muted small mb-0 d-none" data-chart-fallback>
+                        Ebben a hónapban nincs megjeleníthető kiadás, vagy a grafikonhoz internetkapcsolat szükséges.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h2 class="h6 mb-0 fw-semibold"><i class="bi bi-graph-up me-1"></i>12 hónapos trend</h2>
+    </div>
+    <div class="card-body">
+        <div class="chart-box chart-box-lg">
+            <canvas id="trendChart" data-chart-canvas aria-label="Bevételek és kiadások 12 hónapos alakulása" role="img"></canvas>
+            <p class="text-muted small mb-0 d-none" data-chart-fallback>
+                A grafikon megjelenítéséhez internetkapcsolat szükséges.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h2 class="h6 mb-0 fw-semibold">Bevétel kategóriánként</h2>
+            </div>
+            <div class="card-body p-0">
+                {% if income_breakdown %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Kategória</th>
+                                    <th scope="col" class="text-end">Összeg</th>
+                                    <th scope="col" class="text-end">Arány</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in income_breakdown %}
+                                    <tr>
+                                        <td>{{ row.name }}</td>
+                                        <td class="text-end text-nowrap">{{ row.total|huf }}</td>
+                                        <td class="text-end text-nowrap">
+                                            <span class="badge text-bg-light border">{{ row.percent|percent }}</span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr class="fw-semibold">
+                                    <td>Összesen</td>
+                                    <td class="text-end text-nowrap">{{ totals.income|huf }}</td>
+                                    <td class="text-end">100%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted p-3 mb-0">Ebben a hónapban még nincs bevétel.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h2 class="h6 mb-0 fw-semibold">Kiadás kategóriánként</h2>
+            </div>
+            <div class="card-body p-0">
+                {% if expense_breakdown %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Kategória</th>
+                                    <th scope="col" class="text-end">Összeg</th>
+                                    <th scope="col" class="text-end">Arány</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in expense_breakdown %}
+                                    <tr>
+                                        <td>{{ row.name }}</td>
+                                        <td class="text-end text-nowrap">{{ row.total|huf }}</td>
+                                        <td class="text-end text-nowrap">
+                                            <span class="badge text-bg-light border">{{ row.percent|percent }}</span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr class="fw-semibold">
+                                    <td>Összesen</td>
+                                    <td class="text-end text-nowrap">{{ totals.expense|huf }}</td>
+                                    <td class="text-end">100%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted p-3 mb-0">Ebben a hónapban még nincs kiadás.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white">
+        <h2 class="h6 mb-0 fw-semibold"><i class="bi bi-list-ul me-1"></i>{{ month_name }} tranzakciói</h2>
+    </div>
+    <div class="card-body p-0">
+        {% if transactions %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Dátum</th>
+                            <th scope="col">Típus</th>
+                            <th scope="col">Kategória</th>
+                            <th scope="col" class="d-none d-md-table-cell">Leírás</th>
+                            <th scope="col" class="text-end">Összeg</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                            <tr>
+                                <td class="text-nowrap">{{ transaction.date|date:"Y.m.d." }}</td>
+                                <td>
+                                    <span class="badge {% if transaction.type == 'income' %}text-bg-success{% else %}text-bg-danger{% endif %}">
+                                        {{ transaction.get_type_display }}
+                                    </span>
+                                </td>
+                                <td>{{ transaction.category.name }}</td>
+                                <td class="d-none d-md-table-cell text-muted">{{ transaction.description|default:"–" }}</td>
+                                <td class="text-end fw-semibold text-nowrap {% if transaction.type == 'income' %}text-success{% else %}text-danger{% endif %}">
+                                    {% if transaction.type == 'income' %}+{% else %}−{% endif %}{{ transaction.amount|huf }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state text-center py-4">
+                <i class="bi bi-inbox display-6 text-muted"></i>
+                <p class="mt-2 mb-0 text-muted">Ebben a hónapban nincs tranzakció.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{{ chart_data|json_script:"chart-data" }}
+{% endblock %}
